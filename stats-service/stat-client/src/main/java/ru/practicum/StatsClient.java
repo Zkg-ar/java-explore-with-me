@@ -28,21 +28,14 @@ public class StatsClient extends BaseClient {
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         Map<String, Object> parameters;
-        if (uris != null) {
-            parameters = Map.of(
-                    "start", start,
-                    "end", end,
-                    "uris", uris,
-                    "unique", unique
-            );
-            return get("?start={start}&end={end}&uris={uris}&unique={unique}",parameters);
-        } else {
-            parameters = Map.of(
-                    "start", start,
-                    "end", end,
-                    "unique", unique
-            );
-            return get("?start={start}&end={end}&unique={unique}", parameters);
-        }
+
+        parameters = Map.of(
+                "start", start,
+                "end", end,
+                "uris", uris,
+                "unique", unique
+        );
+        return get("?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        
     }
 }
