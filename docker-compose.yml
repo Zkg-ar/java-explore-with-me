@@ -35,7 +35,7 @@ services:
       - ewm-db
     environment:
       - STAT_SERVER_URL=http://stat-server:9090
-      - MAIN_SERVICE_PORT = 8080
+      - MAIN_SERVICE_PORT=8080
       - URL=jdbc:postgresql://localhost:5432/ewn-db
       - USERNAME=postgres
       - PASSWORD=Zaven2904
