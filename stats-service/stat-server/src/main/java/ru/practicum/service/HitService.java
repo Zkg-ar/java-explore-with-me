@@ -9,6 +9,6 @@ import java.util.List;
 public interface HitService {
     EndpointHitDto save(EndpointHitDto endpointHitDto);
 
-    List<ViewStatsDto> getAll(LocalDateTime start, LocalDateTime end, List<String> uri, boolean unique);
+    List<ViewStatsDto> getAll(String start, String end, List<String> uri, boolean unique);
 
 }

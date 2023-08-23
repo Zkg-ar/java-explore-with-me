@@ -28,8 +28,8 @@ public class StatsController {
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> getStats(@RequestParam("start") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                       @RequestParam("end") @DateTimeFormat (pattern = "yyyy-MM-dd HH:mm:ss")LocalDateTime end,
+    public List<ViewStatsDto> getStats(@RequestParam String start,
+                                       @RequestParam String end,
                                        @RequestParam(required = false) List<String> uri,
                                        @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Получение статистики по посещениям.");
