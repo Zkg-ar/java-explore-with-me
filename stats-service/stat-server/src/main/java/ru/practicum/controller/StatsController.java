@@ -2,6 +2,7 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
@@ -27,8 +28,8 @@ public class StatsController {
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> getStats(@RequestParam LocalDateTime start,
-                                       @RequestParam LocalDateTime end,
+    public List<ViewStatsDto> getStats(@RequestParam("start") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                       @RequestParam("end") @DateTimeFormat (pattern = "yyyy-MM-dd HH:mm:ss")LocalDateTime end,
                                        @RequestParam(required = false) List<String> uri,
                                        @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Получение статистики по посещениям.");
