@@ -18,24 +18,14 @@ public class StatsClient extends BaseClient {
 
     @Autowired
     public StatsClient(@Value("${stat-server}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX)).requestFactory(HttpComponentsClientHttpRequestFactory::new).build());
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         Map<String, Object> parameters;
 
-        parameters = Map.of(
-                "start", start,
-                "end", end,
-                "uris", uris,
-                "unique", unique
-        );
+        parameters = Map.of("start", start, "end", end, "uris", uris, "unique", unique);
         return get("?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-        
+
     }
 }
