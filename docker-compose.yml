@@ -1,15 +1,41 @@
-version: '3.1'
+version: '24.0.2'
 services:
   stats-server:
+    build: ./stats-service/stat-server
+    image: ewn-stats-server-image
+    container_name: ewm_stats
     ports:
       - "9090:9090"
+    depends_on:
+      - stats-db
+    environment:
+    - SPRING_DATASOURCE_URL=jdbc:h2:mem:ewn;MODE=PostgreSQL
+    - SPRING_DATASOURCE_USERNAME=root
+    - SPRING_DATASOURCE_PASSWORD=root
+    - SERVER_PORT=9090
 
   stats-db:
     image: postgres:14-alpine
+    container_name: stats-db-container
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+    volumes:
+      - /var/lib/postgresql/data/
 
   ewm-service:
+    build: ./main-service
+    image: ewn-main-service-image
+    container_name: ewm_main
     ports:
       - "8080:8080"
+    depends_on:
+      - ewm-db
+    environment:
+      - STAT_SERVER_URL=http://stat-server:9090
 
   ewm-db:
     image: postgres:14-alpine
+
