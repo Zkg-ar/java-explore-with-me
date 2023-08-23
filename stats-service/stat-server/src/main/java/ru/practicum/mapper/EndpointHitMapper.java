@@ -10,5 +10,6 @@ public interface EndpointHitMapper {
     EndpointHitMapper INSTANCE = Mappers.getMapper(EndpointHitMapper.class);
 
     EndpointHitDto toEndpointHitDto(EndpointHit endpointHit);
+
     EndpointHit toEndpointHit(EndpointHitDto userDto);
 }

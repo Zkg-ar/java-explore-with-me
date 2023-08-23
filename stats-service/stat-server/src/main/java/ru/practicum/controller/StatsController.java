@@ -26,13 +26,6 @@ public class StatsController {
         return hitService.save(endpointHitDto);
     }
 
-    @GetMapping("/hit")
-    public List<EndpointHitDto> getAll() {
-        log.info("Сохранение информации о том, что к эндпоинту был запрос");
-        return hitService.getAllHits();
-    }
-
-
     @GetMapping("/stats")
     public List<ViewStatsDto> getStats(@RequestParam LocalDateTime start,
                                        @RequestParam LocalDateTime end,

@@ -38,9 +38,4 @@ public class HitServiceImpl implements HitService {
         }
     }
 
-    //Подлежит удалению
-    @Override
-    public List<EndpointHitDto> getAllHits() {
-        return hitsRepository.findAll().stream().map(endpointHit -> EndpointHitMapper.INSTANCE.toEndpointHitDto(endpointHit)).collect(Collectors.toList());
-    }
 }
