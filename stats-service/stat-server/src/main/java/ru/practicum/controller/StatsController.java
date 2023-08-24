@@ -28,10 +28,10 @@ public class StatsController {
     @GetMapping("/stats")
     public List<ViewStatsDto> getStats(@RequestParam String start,
                                        @RequestParam String end,
-                                       @RequestParam(required = false) List<String> uri,
+                                       @RequestParam(required = false) List<String> uris,
                                        @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Получение статистики по посещениям.");
-        return hitService.getAll(start, end, uri, unique);
+        return hitService.getAll(start, end, uris, unique);
     }
 
 }

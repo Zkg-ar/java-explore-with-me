@@ -10,19 +10,21 @@ import java.util.List;
 
 public interface HitsRepository extends JpaRepository<EndpointHit, Long> {
     @Query("SELECT new ru.practicum.dto.ViewStatsDto(eh.app, eh.uri, COUNT(DISTINCT eh.ip)) " +
-            "FROM EndpointHit eh WHERE eh.timestamp BETWEEN ?1 AND ?2 GROUP BY eh.uri, eh.app ORDER BY count(eh.ip) DESC")
+            "FROM EndpointHit eh WHERE eh.timestamp BETWEEN ?1 AND ?2 GROUP BY eh.uri, eh.app ORDER BY COUNT(eh.ip) DESC")
     List<ViewStatsDto> getAllUniqueWhereCreatedBetweenStartAndEnd(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT new ru.practicum.dto.ViewStatsDto(eh.app, eh.uri, COUNT(eh.ip)) " +
-            "FROM EndpointHit eh WHERE eh.timestamp BETWEEN ?1 AND ?2 GROUP BY eh.uri, eh.app ORDER BY count(eh.ip) DESC")
+            "FROM EndpointHit eh WHERE eh.timestamp BETWEEN ?1 AND ?2 GROUP BY eh.uri, eh.app ORDER BY COUNT(eh.ip) DESC")
     List<ViewStatsDto> getAllWhereCreatedBetweenStartAndEnd(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT  new ru.practicum.dto.ViewStatsDto(eh.app, eh.uri, COUNT(DISTINCT eh.ip)) " +
-            "FROM EndpointHit eh WHERE eh.timestamp BETWEEN ?1 AND ?2 AND eh.uri IN ?3 GROUP BY eh.uri, eh.app ORDER BY count(eh.ip) DESC")
+            "FROM EndpointHit eh WHERE eh.timestamp BETWEEN ?1 AND ?2 AND eh.uri IN ?3 GROUP BY eh.uri, eh.app ORDER BY COUNT(eh.ip) DESC")
     List<ViewStatsDto> getAllUniqueWhereCreatedBetweenStartAndEndAndUriInList(LocalDateTime start, LocalDateTime end, List<String> uri);
 
     @Query("SELECT  new ru.practicum.dto.ViewStatsDto(eh.app, eh.uri, COUNT(eh.ip)) " +
-            "FROM EndpointHit eh WHERE eh.timestamp BETWEEN ?1 AND ?2 AND eh.uri IN ?3 GROUP BY eh.uri, eh.app ORDER BY count(eh.ip) DESC")
+            "FROM EndpointHit eh " +
+            "WHERE eh.timestamp BETWEEN ?1 AND ?2 " +
+            "AND eh.uri IN ?3 GROUP BY eh.uri, eh.app ORDER BY COUNT(eh.ip) DESC")
     List<ViewStatsDto> getAllWhereCreatedBetweenStartAndEndAndUriInList(LocalDateTime start, LocalDateTime end, List<String> uri);
 
 }
