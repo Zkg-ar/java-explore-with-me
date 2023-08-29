@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.Constant;
 import ru.practicum.location.dto.LocationDto;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -33,11 +34,8 @@ public class NewEventDto {
 
     @NotNull
     private LocationDto location;
-
     private Boolean paid;
-
     private Integer participantLimit;
-
     private Boolean requestModeration;
 
     @NotBlank

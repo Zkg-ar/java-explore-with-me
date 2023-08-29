@@ -30,8 +30,8 @@ public class PublicEventController {
                                          @RequestParam(required = false) String rangeEnd,
                                          @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                          @RequestParam(required = false) String sort,
-                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                         @Positive @RequestParam(defaultValue = "10") Integer size,
+                                         @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                         @Positive @RequestParam(value = "size", defaultValue = "10") Integer size,
                                          HttpServletRequest httpServletRequest) {
         //client.createHit(httpServletRequest);
         log.info("Получение всех записей");

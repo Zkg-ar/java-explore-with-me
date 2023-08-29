@@ -40,9 +40,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto save(Long userId, NewEventDto newEventDto) {
+        checkNewEventDto(newEventDto);
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
+
         Category category = categoryRepository
                 .findById(newEventDto.getCategory())
                 .orElseThrow(() -> new NotFoundException(String.format("Категория с id = %d не найден", newEventDto.getCategory())));
@@ -160,7 +162,6 @@ public class EventServiceImpl implements EventService {
             event.setRequestModeration(updateEventAdminRequestDto.getRequestModeration());
         }
 
-
         switch (updateEventAdminRequestDto.getStateAction()) {
             case PUBLISH_EVENT:
                 if (event.getState().equals(State.PENDING)) {
@@ -223,6 +224,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository
                 .findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
+
         if (event.getState() != State.PUBLISHED) {
             throw new BadRequestException("Событие должно быть опубликовано.");
         }
@@ -236,5 +238,17 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private NewEventDto checkNewEventDto(NewEventDto newEventDto) {
+        if (newEventDto.getPaid() == null) {
+            newEventDto.setPaid(false);
+        }
+        if (newEventDto.getRequestModeration() == null) {
+            newEventDto.setRequestModeration(true);
+        }
+        if (newEventDto.getParticipantLimit() == null) {
+            newEventDto.setParticipantLimit(0);
+        }
+        return newEventDto;
+    }
 
 }
