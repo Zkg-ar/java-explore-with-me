@@ -110,9 +110,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventFullDto> getEventsByAdmin(List<Long> users, List<String> states, List<Long> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
+    public List<EventFullDto> getEventsByAdmin(List<Long> users, List<State> states, List<Long> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
+
+
         return eventRepository
-                .findAllByInitiator_IdInAndStateInAndAndCategory_IdInAndCreatedOnBetween(users, states, categories, LocalDateTime.parse(rangeEnd, Constant.FORMATTER), LocalDateTime.parse(rangeEnd, Constant.FORMATTER), PageRequest.of(from / size, size))
+                .findAllByInitiator_IdInAndStateInAndAndCategory_IdInAndCreatedOnBetween(users, states, categories, rangeStart == null ? LocalDateTime.now() : LocalDateTime.parse(rangeEnd, Constant.FORMATTER), rangeEnd == null ? LocalDateTime.now() : LocalDateTime.parse(rangeEnd, Constant.FORMATTER), PageRequest.of(from / size, size))
                 .stream()
                 .map(event -> eventMapper.toEventFullDto(event))
                 .collect(Collectors.toList());
@@ -180,6 +182,7 @@ public class EventServiceImpl implements EventService {
                 break;
         }
 
+
         return eventMapper.toEventFullDto(eventRepository.save(event));
 
     }
@@ -212,7 +215,7 @@ public class EventServiceImpl implements EventService {
                             .collect(Collectors.toList());
                     break;
                 default:
-                    throw new BadRequestException("Сортировкавозможна только по просмотрам или дате события.");
+                    throw new BadRequestException("Сортировка возможна только по просмотрам или дате события.");
             }
         }
         return eventShortDtos;
@@ -220,14 +223,11 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getEventByIdPublic(Long eventId) {
+    public EventFullDto getEventById(Long eventId) {
         Event event = eventRepository
                 .findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
-        if (event.getState() != State.PUBLISHED) {
-            throw new BadRequestException("Событие должно быть опубликовано.");
-        }
         return eventMapper.toEventFullDto(event);
     }
 

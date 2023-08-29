@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.UpdateEventAdminRequestDto;
+import ru.practicum.events.model.State;
 import ru.practicum.events.service.EventService;
 
 import javax.validation.constraints.Positive;
@@ -20,7 +21,7 @@ public class AdminEventController {
 
     @GetMapping("/admin/events")
     public List<EventFullDto> findEvents(@RequestParam(required = false) List<Long> users,
-                                         @RequestParam(required = false) List<String> states,
+                                         @RequestParam(required = false) List<State> states,
                                          @RequestParam(required = false) List<Long> categories,
                                          @RequestParam(required = false) String rangeStart,
                                          @RequestParam(required = false) String rangeEnd,
@@ -30,8 +31,8 @@ public class AdminEventController {
     }
 
     @PatchMapping("/admin/events/{eventId}")
-    public EventFullDto updateByAdmin(@PathVariable Long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto){
-        return eventService.updateByAdmin(eventId,updateEventAdminRequestDto);
+    public EventFullDto updateByAdmin(@PathVariable Long eventId, @RequestBody UpdateEventAdminRequestDto updateEventAdminRequestDto) {
+        return eventService.updateByAdmin(eventId, updateEventAdminRequestDto);
     }
 
 

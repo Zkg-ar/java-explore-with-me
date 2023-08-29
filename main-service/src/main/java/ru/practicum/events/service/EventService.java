@@ -2,6 +2,7 @@ package ru.practicum.events.service;
 
 import ru.practicum.events.dto.*;
 import ru.practicum.events.model.Event;
+import ru.practicum.events.model.State;
 
 import java.util.List;
 
@@ -14,12 +15,12 @@ public interface EventService {
 
     EventFullDto updateEventByUserId(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
-    List<EventFullDto> getEventsByAdmin(List<Long> users, List<String> states, List<Long> categories, String rangeStart, String rangeEnd, Integer from, Integer size);
+    List<EventFullDto> getEventsByAdmin(List<Long> users, List<State> states, List<Long> categories, String rangeStart, String rangeEnd, Integer from, Integer size);
 
     EventFullDto updateByAdmin(Long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto);
 
     List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd,
                                      Boolean onlyAvailable, String sort, Integer from, Integer size);
 
-    EventFullDto getEventByIdPublic(Long eventId);
+    EventFullDto getEventById(Long eventId);
 }

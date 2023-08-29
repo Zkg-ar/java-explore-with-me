@@ -42,6 +42,6 @@ public class PublicEventController {
     public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         //client.createHit(httpServletRequest);
         log.info("Получение записи по id");
-        return eventService.getEventByIdPublic(id);
+        return eventService.getEventById(id);
     }
 }

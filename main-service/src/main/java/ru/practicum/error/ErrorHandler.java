@@ -7,8 +7,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+
 import javax.validation.ValidationException;
 
 import java.time.LocalDateTime;
@@ -26,11 +28,19 @@ public class ErrorHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(ValidationException .class)
-    public ResponseEntity<Object> handleBadRequestException(ValidationException  e) {
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Object> handleBadRequestException(ValidationException e) {
         log.error("Bad request exception.");
         return responseEntity(new ApiError(HttpStatus.BAD_REQUEST,
                 "Не все обязательные поля заполнены.", e.getMessage(), LocalDateTime.now()));
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Object> handleBadRequestException(BadRequestException e) {
+        log.error("Bad request exception.");
+        return responseEntity(new ApiError(HttpStatus.BAD_REQUEST,
+                "Bad request exception", e.getMessage(), LocalDateTime.now()));
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
