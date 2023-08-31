@@ -3,7 +3,6 @@ package ru.practicum.events.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.service.EventService;
@@ -31,9 +30,9 @@ public class PrivateEventController {
     }
 
     @GetMapping("/users/{userId}/events")
-    public List<EventShortDto> getAllUsersEvents(@PathVariable Long userId,
-                                                 @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                                 @RequestParam(name = "size", defaultValue = "10") Integer size) {
+    public List<EventFullDto> getAllUsersEvents(@PathVariable Long userId,
+                                                 @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                                 @RequestParam(value = "size", defaultValue = "10") Integer size) {
         log.info("Получение событий, добавленных текущим пользователем");
         return eventService.getUsersEvents(userId, from, size);
     }
@@ -61,7 +60,7 @@ public class PrivateEventController {
     }
 
 
-    @PatchMapping("/{eventId}/requests")
+    @PatchMapping("/users/{userId}/events/{eventId}/requests")
     public EventRequestStatusUpdateResultDto updateParticipationRequest(@PathVariable Long userId,
                                                                         @PathVariable Long eventId,
                                                                         @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {

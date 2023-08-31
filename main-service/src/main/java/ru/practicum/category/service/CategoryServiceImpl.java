@@ -10,6 +10,8 @@ import ru.practicum.category.dto.NewCategoryDto;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.events.repository.EventRepository;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
 import java.util.List;
@@ -21,10 +23,14 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
     public CategoryDto createCategory(NewCategoryDto newCategoryDto) {
+        if (categoryRepository.existsByName(newCategoryDto.getName())) {
+            throw new ConflictException("Категория с таким именем уже существует");
+        }
         Category category = categoryMapper.toCategory(newCategoryDto);
         return categoryMapper.toCategoryDto(categoryRepository.save(category));
     }
@@ -34,6 +40,9 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository
                 .findById(catId)
                 .orElseThrow(() -> new NotFoundException(String.format("Категория с id = %d не найдена", catId)));
+        if (eventRepository.existsEventsByCategory_Name(category.getName())) {
+            throw new ConflictException("Категория с таким именем уже существует");
+        }
         categoryRepository.delete(category);
     }
 
@@ -42,6 +51,9 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository
                 .findById(catId)
                 .orElseThrow(() -> new NotFoundException(String.format("Категория с id = %d не найдена", catId)));
+        if (categoryRepository.existsByName(newCategoryDto.getName())) {
+            throw new ConflictException("Категория с таким именем уже существует");
+        }
         Category newCategory = categoryMapper.toCategory(newCategoryDto);
         return categoryMapper.toCategoryDto(categoryRepository.save(newCategory));
     }

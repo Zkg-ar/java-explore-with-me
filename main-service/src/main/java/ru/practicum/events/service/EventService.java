@@ -9,7 +9,7 @@ import java.util.List;
 public interface EventService {
     EventFullDto save(Long userId, NewEventDto newEventDto);
 
-    List<EventShortDto> getUsersEvents(Long userId, Integer from, Integer size);
+    List<EventFullDto> getUsersEvents(Long userId, Integer from, Integer size);
 
     EventFullDto getEventById(Long userId, Long eventId);
 

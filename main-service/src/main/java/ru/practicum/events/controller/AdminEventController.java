@@ -8,6 +8,7 @@ import ru.practicum.events.dto.UpdateEventAdminRequestDto;
 import ru.practicum.events.model.State;
 import ru.practicum.events.service.EventService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -20,18 +21,18 @@ public class AdminEventController {
     private final EventService eventService;
 
     @GetMapping("/admin/events")
-    public List<EventFullDto> findEvents(@RequestParam(required = false) List<Long> users,
-                                         @RequestParam(required = false) List<State> states,
-                                         @RequestParam(required = false) List<Long> categories,
-                                         @RequestParam(required = false) String rangeStart,
-                                         @RequestParam(required = false) String rangeEnd,
-                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                         @Positive @RequestParam(defaultValue = "10") Integer size) {
+    public List<EventFullDto> getEventsByAdmin(@RequestParam(required = false) List<Long> users,
+                                               @RequestParam(required = false) List<State> states,
+                                               @RequestParam(required = false) List<Long> categories,
+                                               @RequestParam(required = false) String rangeStart,
+                                               @RequestParam(required = false) String rangeEnd,
+                                               @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                               @Positive @RequestParam(value = "size", defaultValue = "10") Integer size) {
         return eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/admin/events/{eventId}")
-    public EventFullDto updateByAdmin(@PathVariable Long eventId, @RequestBody UpdateEventAdminRequestDto updateEventAdminRequestDto) {
+    public EventFullDto updateByAdmin(@PathVariable Long eventId, @Valid @RequestBody UpdateEventAdminRequestDto updateEventAdminRequestDto) {
         return eventService.updateByAdmin(eventId, updateEventAdminRequestDto);
     }
 

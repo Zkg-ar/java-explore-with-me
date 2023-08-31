@@ -14,5 +14,5 @@ public class LocationDto {
     @NotNull
     private float lat;
     @NotNull
-    private float lot;
+    private float lon;
 }

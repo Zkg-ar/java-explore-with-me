@@ -25,8 +25,8 @@ public class EventFullDto {
     private CategoryDto category;
 
     private Integer confirmedRequests;
-
-    private String createdOn;
+    @JsonFormat(pattern = Constant.FORMAT)
+    private LocalDateTime createdOn;
 
     private String description;
     @JsonFormat(pattern = Constant.FORMAT)

@@ -2,6 +2,7 @@ package ru.practicum.events.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import ru.practicum.Constant;
 import ru.practicum.category.model.Category;
 import ru.practicum.location.model.Location;
 import ru.practicum.user.model.User;
@@ -28,14 +29,14 @@ public class Event {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Constant.FORMAT)
     @Column(name = "created_on")
     private LocalDateTime createdOn;
 
     @Column(name = "description")
     private String description;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = Constant.FORMAT)
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
 

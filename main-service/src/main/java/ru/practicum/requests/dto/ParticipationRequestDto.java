@@ -4,6 +4,8 @@ package ru.practicum.requests.dto;
 import lombok.*;
 import ru.practicum.requests.model.StatusRequest;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -15,7 +17,7 @@ public class ParticipationRequestDto {
 
     private Long event;
 
-    private String created;
+    private LocalDateTime created;
 
     private Long requester;
 

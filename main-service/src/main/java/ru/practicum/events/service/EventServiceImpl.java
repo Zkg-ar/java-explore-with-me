@@ -63,10 +63,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventShortDto> getUsersEvents(Long userId, Integer from, Integer size) {
+    public List<EventFullDto> getUsersEvents(Long userId, Integer from, Integer size) {
         return eventRepository.findAllByInitiator_Id(userId, PageRequest.of(from / size, size))
                 .stream()
-                .map(event -> eventMapper.toEventShortDto(event))
+                .map(event -> eventMapper.toEventFullDto(event))
                 .collect(Collectors.toList());
     }
 
@@ -88,7 +88,10 @@ public class EventServiceImpl implements EventService {
                 .findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
-
+        if (updateEventUserRequest.getEventDate() != null) {
+            checkEventDate(updateEventUserRequest.getEventDate());
+            event.setEventDate(updateEventUserRequest.getEventDate());
+        }
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Невозможно получить полную информацию о событии.");
         }
@@ -112,9 +115,8 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventFullDto> getEventsByAdmin(List<Long> users, List<State> states, List<Long> categories, String rangeStart, String rangeEnd, Integer from, Integer size) {
 
-
         return eventRepository
-                .findAllByInitiator_IdInAndStateInAndAndCategory_IdInAndCreatedOnBetween(users, states, categories, rangeStart == null ? LocalDateTime.now() : LocalDateTime.parse(rangeEnd, Constant.FORMATTER), rangeEnd == null ? LocalDateTime.now() : LocalDateTime.parse(rangeEnd, Constant.FORMATTER), PageRequest.of(from / size, size))
+                .getEvents(users, states, categories, rangeStart == null ? LocalDateTime.now() : LocalDateTime.parse(rangeStart, Constant.FORMATTER), rangeEnd == null ? LocalDateTime.now() : LocalDateTime.parse(rangeEnd, Constant.FORMATTER), PageRequest.of(from / size, size))
                 .stream()
                 .map(event -> eventMapper.toEventFullDto(event))
                 .collect(Collectors.toList());
@@ -164,22 +166,24 @@ public class EventServiceImpl implements EventService {
             event.setRequestModeration(updateEventAdminRequestDto.getRequestModeration());
         }
 
-        switch (updateEventAdminRequestDto.getStateAction()) {
-            case PUBLISH_EVENT:
-                if (event.getState().equals(State.PENDING)) {
-                    event.setState(State.PUBLISHED);
-                    event.setPublishedOn(LocalDateTime.now());
-                } else {
-                    throw new ConflictException("Событие можно публиковать, только если оно в состоянии ожидания.");
-                }
-                break;
-            case REJECT_EVENT:
-                if (event.getState().equals(State.PENDING)) {
-                    event.setState(State.CANCELED);
-                } else {
-                    throw new ConflictException("Событие можно отклонить, только если оно еще не опубликовано.");
-                }
-                break;
+        if (updateEventAdminRequestDto.getStateAction() != null) {
+            switch (updateEventAdminRequestDto.getStateAction()) {
+                case PUBLISH_EVENT:
+                    if (event.getState().equals(State.PENDING)) {
+                        event.setState(State.PUBLISHED);
+                        event.setPublishedOn(LocalDateTime.now());
+                    } else {
+                        throw new ConflictException("Событие можно публиковать, только если оно в состоянии ожидания.");
+                    }
+                    break;
+                case REJECT_EVENT:
+                    if (event.getState().equals(State.PENDING)) {
+                        event.setState(State.CANCELED);
+                    } else {
+                        throw new ConflictException("Событие можно отклонить, только если оно еще не опубликовано.");
+                    }
+                    break;
+            }
         }
 
 
