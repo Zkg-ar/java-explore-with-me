@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Constant;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+//import ru.practicum.client.EventClient;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.model.Event;
@@ -21,6 +22,7 @@ import ru.practicum.location.repository.LocationRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -36,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
+    //private final EventClient client;
     private final EventMapper eventMapper;
 
     @Override
@@ -192,7 +195,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
+    public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
         List<Event> events = eventRepository.searchEvent(text, categories, paid, State.PUBLISHED, PageRequest.of(from / size, size));
         List<EventShortDto> eventShortDtos = events.stream()
                 .filter(event -> rangeStart != null ?
@@ -222,16 +225,18 @@ public class EventServiceImpl implements EventService {
                     throw new BadRequestException("Сортировка возможна только по просмотрам или дате события.");
             }
         }
+        //createHit(httpServletRequest);
         return eventShortDtos;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getEventById(Long eventId) {
+    public EventFullDto getEventById(Long eventId, HttpServletRequest httpServletRequest) {
         Event event = eventRepository
                 .findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
+        //createHit(httpServletRequest);
         return eventMapper.toEventFullDto(event);
     }
 
@@ -254,5 +259,9 @@ public class EventServiceImpl implements EventService {
         }
         return newEventDto;
     }
+
+//    private void createHit(HttpServletRequest request) {
+//        client.createHit(request);
+//    }
 
 }

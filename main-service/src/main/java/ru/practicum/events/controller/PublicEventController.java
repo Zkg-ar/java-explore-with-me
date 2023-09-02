@@ -19,7 +19,6 @@ import java.util.List;
 public class PublicEventController {
 
     private final EventService eventService;
-    //private final EventClient client;
 
 
     @GetMapping
@@ -33,15 +32,13 @@ public class PublicEventController {
                                          @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
                                          @Positive @RequestParam(value = "size", defaultValue = "10") Integer size,
                                          HttpServletRequest httpServletRequest) {
-        //client.createHit(httpServletRequest);
         log.info("Получение всех записей");
-        return eventService.getAllEvents(text, categoryIds, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        return eventService.getAllEvents(text, categoryIds, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size,httpServletRequest);
     }
 
     @GetMapping("/{id}")
     public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest httpServletRequest) {
-        //client.createHit(httpServletRequest);
         log.info("Получение записи по id");
-        return eventService.getEventById(id);
+        return eventService.getEventById(id,httpServletRequest);
     }
 }
