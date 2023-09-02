@@ -9,7 +9,6 @@ import ru.practicum.user.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
