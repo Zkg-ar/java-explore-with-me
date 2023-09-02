@@ -11,6 +11,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import java.util.List;
 import java.util.Map;
 
+
 @Service
 public class StatsClient extends BaseClient {
     private static final String API_PREFIX = "/stats";
@@ -20,4 +21,11 @@ public class StatsClient extends BaseClient {
         super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX)).requestFactory(HttpComponentsClientHttpRequestFactory::new).build());
     }
 
+    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, Boolean unique) {
+        Map<String, Object> parameters;
+
+        parameters = Map.of("start", start, "end", end, "uris", uris, "unique", unique);
+        return get("?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+
+    }
 }
