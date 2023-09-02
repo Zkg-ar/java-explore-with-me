@@ -2,6 +2,8 @@ package ru.practicum.events.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Constant;
@@ -68,7 +70,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventFullDto> getUsersEvents(Long userId, Integer from, Integer size) {
-        return toEventsFullDto(eventRepository.findAllByInitiator_Id(userId, PageRequest.of(from / size, size))
+        return mapToEventsFullDto(eventRepository.findAllByInitiator_Id(userId, PageRequest.of(from / size, size))
                 .stream()
                 .collect(Collectors.toList()));
     }
@@ -82,7 +84,7 @@ public class EventServiceImpl implements EventService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new BadRequestException("Запрос составлен некорректно");
         }
-        return toEventFullDto(event);
+        return mapToEventFullDto(event);
     }
 
     @Override
@@ -195,28 +197,25 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
-        List<Event> events = eventRepository.searchEvent(text, categories, paid, State.PUBLISHED, PageRequest.of(from / size, size));
-        List<EventShortDto> eventShortDtos = events.stream()
-                .filter(event -> rangeStart != null ?
-                        event.getEventDate().isAfter(LocalDateTime.parse(rangeStart, Constant.FORMATTER)) :
-                        event.getEventDate().isAfter(LocalDateTime.now())
-                                && rangeEnd != null ? event.getEventDate().isBefore(LocalDateTime.parse(rangeEnd,
-                                Constant.FORMATTER)) :
-                                event.getEventDate().isBefore(LocalDateTime.MAX))
+    public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
+        List<EventShortDto> events = eventRepository.searchEvent(text,
+                        categories,
+                        paid, rangeStart,
+                        rangeEnd, onlyAvailable, PageRequest.of(from / size, size))
+                .stream()
                 .map(event -> eventMapper.toEventShortDto(event))
                 .collect(Collectors.toList());
 
         if (sort != null) {
             switch (sort) {
                 case "EVENT_DATE":
-                    eventShortDtos = eventShortDtos
+                    events = events
                             .stream()
                             .sorted(Comparator.comparing(EventShortDto::getEventDate))
                             .collect(Collectors.toList());
                     break;
                 case "VIEWS":
-                    eventShortDtos = eventShortDtos
+                    events = events
                             .stream()
                             .sorted(Comparator.comparing(EventShortDto::getViews))
                             .collect(Collectors.toList());
@@ -226,7 +225,7 @@ public class EventServiceImpl implements EventService {
             }
         }
         viewService.createHit(httpServletRequest);
-        return eventShortDtos;
+        return events;
     }
 
     @Override
@@ -238,7 +237,7 @@ public class EventServiceImpl implements EventService {
 
         viewService.createHit(httpServletRequest);
 
-        return toEventFullDto(event);
+        return mapToEventFullDto(event);
     }
 
     private void checkEventDate(LocalDateTime eventDate) {
@@ -277,7 +276,7 @@ public class EventServiceImpl implements EventService {
         return dtos;
     }
 
-    private List<EventFullDto> toEventsFullDto(List<Event> events) {
+    private List<EventFullDto> mapToEventsFullDto(List<Event> events) {
         Map<Long, Long> views = viewService.getViews(events);
         Map<Long, Long> confirmedRequests = viewService.getConfirmedRequests(events);
 
@@ -294,8 +293,8 @@ public class EventServiceImpl implements EventService {
         return dtos;
     }
 
-    private EventFullDto toEventFullDto(Event event) {
-        return toEventsFullDto(List.of(event)).get(0);
+    private EventFullDto mapToEventFullDto(Event event) {
+        return mapToEventsFullDto(List.of(event)).get(0);
     }
 
 

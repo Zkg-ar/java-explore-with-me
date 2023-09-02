@@ -10,6 +10,7 @@ import ru.practicum.events.service.EventService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,20 +26,20 @@ public class PublicEventController {
     public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
                                          @RequestParam(required = false) List<Long> categoryIds,
                                          @RequestParam(required = false) Boolean paid,
-                                         @RequestParam(required = false) String rangeStart,
-                                         @RequestParam(required = false) String rangeEnd,
+                                         @RequestParam(required = false) LocalDateTime rangeStart,
+                                         @RequestParam(required = false) LocalDateTime rangeEnd,
                                          @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                          @RequestParam(required = false) String sort,
                                          @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
                                          @Positive @RequestParam(value = "size", defaultValue = "10") Integer size,
                                          HttpServletRequest httpServletRequest) {
         log.info("Получение всех записей");
-        return eventService.getAllEvents(text, categoryIds, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size,httpServletRequest);
+        return eventService.getAllEvents(text, categoryIds, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, httpServletRequest);
     }
 
     @GetMapping("/{id}")
     public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         log.info("Получение записи по id");
-        return eventService.getEventById(id,httpServletRequest);
+        return eventService.getEventById(id, httpServletRequest);
     }
 }
