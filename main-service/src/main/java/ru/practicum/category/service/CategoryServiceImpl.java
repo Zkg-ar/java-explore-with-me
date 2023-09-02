@@ -47,14 +47,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
+    public CategoryDto updateCategory(Long catId, NewCategoryDto categoryDto) {
         Category category = categoryRepository
                 .findById(catId)
                 .orElseThrow(() -> new NotFoundException(String.format("Категория с id = %d не найдена", catId)));
         if (categoryRepository.existsByName(categoryDto.getName())) {
             throw new ConflictException("Категория с таким именем уже существует");
         }
-        categoryDto.setId(catId);
+
         Category newCategory = categoryMapper.toCategory(categoryDto);
         return categoryMapper.toCategoryDto(categoryRepository.save(newCategory));
     }

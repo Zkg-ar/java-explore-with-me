@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 @RequiredArgsConstructor
 public class ViewServiceImpl implements ViewService {
 
