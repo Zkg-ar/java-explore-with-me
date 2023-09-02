@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Constant;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-import ru.practicum.client.EventClient;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.model.Event;
@@ -40,7 +39,6 @@ public class EventServiceImpl implements EventService {
     private final RequestRepository requestRepository;
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
-    private final EventClient client;
     private final EventMapper eventMapper;
 
     private final ViewService viewService;
@@ -247,7 +245,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository
                 .findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
-
+        if (!event.getState().equals(State.PUBLISHED)) {
+            throw new NotFoundException("Событие не найдено");
+        }
         viewService.createHit(httpServletRequest);
 
         return mapToEventFullDto(event);
