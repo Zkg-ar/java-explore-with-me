@@ -190,7 +190,7 @@ public class EventServiceImpl implements EventService {
         }
 
 
-        return toEventFullDto(eventRepository.save(event));
+        return eventMapper.toEventFullDto(eventRepository.save(event));
 
     }
 
