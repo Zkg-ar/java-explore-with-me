@@ -105,9 +105,10 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId).stream().collect(Collectors.toList());
 
-        if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED)) {
+        if (event.getParticipantLimit() == 0) {
             throw new ConflictException("Лимит участников уже заполнен.");
         }
+
         if (ids != null) {
             for (Long id : ids) {
                 ParticipationRequest participationRequest = requests.stream().filter(participationRequest1 -> participationRequest1.getId().equals(id)).findFirst().orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %d не найден", id)));
