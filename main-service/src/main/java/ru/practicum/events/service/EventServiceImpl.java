@@ -197,7 +197,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
-        List<EventShortDto> events = eventRepository.searchEvent(text, categories, paid, State.PUBLISHED,
+        List<EventShortDto> events = eventRepository.searchEvent(text, categories, paid,
                         PageRequest.of(from / size, size))
                 .stream()
                 .filter(event -> rangeStart != null ?
@@ -209,6 +209,7 @@ public class EventServiceImpl implements EventService {
                 .map(event -> eventMapper.toEventShortDto(event))
                 .map(this::setConfirmedRequests)
                 .collect(Collectors.toList());
+
         if (Boolean.TRUE.equals(onlyAvailable)) {
             events = events.stream().filter(shortEventDto ->
                     shortEventDto.getConfirmedRequests() < eventRepository
