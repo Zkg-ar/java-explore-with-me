@@ -19,6 +19,8 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.location.mapper.LocationMapper;
 import ru.practicum.location.model.Location;
 import ru.practicum.location.repository.LocationRepository;
+import ru.practicum.requests.model.StatusRequest;
+import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
@@ -35,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
     private final EventClient client;
@@ -195,14 +198,26 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
-        List<EventShortDto> events = eventRepository.searchEvent(text,
-                        categories,
-                        paid, rangeStart,
-                        rangeEnd, onlyAvailable, PageRequest.of(from / size, size))
+    public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
+        List<EventShortDto> events = eventRepository.searchEvent(text, categories, paid, State.PUBLISHED,
+                        PageRequest.of(from / size, size))
                 .stream()
+                .filter(event -> rangeStart != null ?
+                        event.getEventDate().isAfter(LocalDateTime.parse(rangeStart, Constant.FORMATTER)) :
+                        event.getEventDate().isAfter(LocalDateTime.now())
+                                && rangeEnd != null ? event.getEventDate().isBefore(LocalDateTime.parse(rangeEnd,
+                                Constant.FORMATTER)) :
+                                event.getEventDate().isBefore(LocalDateTime.MAX))
                 .map(event -> eventMapper.toEventShortDto(event))
+                .map(this::setConfirmedRequests)
                 .collect(Collectors.toList());
+        if (Boolean.TRUE.equals(onlyAvailable)) {
+            events = events.stream().filter(shortEventDto ->
+                    shortEventDto.getConfirmedRequests() < eventRepository
+                            .findById(shortEventDto.getId()).get().getParticipantLimit() ||
+                            eventRepository.findById(shortEventDto.getId()).get().getParticipantLimit() == 0
+            ).collect(Collectors.toList());
+        }
 
         if (sort != null) {
             switch (sort) {
@@ -289,6 +304,12 @@ public class EventServiceImpl implements EventService {
 
 
         return dtos;
+    }
+
+    private EventShortDto setConfirmedRequests(EventShortDto eventDto) {
+        eventDto.setConfirmedRequests(requestRepository.countParticipationByEventIdAndStatus(eventDto.getId(),
+                StatusRequest.CONFIRMED));
+        return eventDto;
     }
 
     private EventFullDto mapToEventFullDto(Event event) {
