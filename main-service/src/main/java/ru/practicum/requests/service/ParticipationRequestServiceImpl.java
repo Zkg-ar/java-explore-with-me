@@ -38,12 +38,8 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         if (requestRepository.findByRequester_IdAndEvent_Id(eventId, userId) != null) {
             throw new ConflictException("Нельзя добавить повторный запрос.");
         }
-        Event event = eventRepository
-                .findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Собыитие с id = %d не найдено", eventId)));
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователль с id = %d не найден", userId)));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(String.format("Собыитие с id = %d не найдено", eventId)));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("Пользователль с id = %d не найден", userId)));
 
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Инициатор события не может отправлять запрос на участие.");
@@ -74,9 +70,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
     @Override
     public ParticipationRequestDto updateRequestStatus(Long userId, Long requestId) {
-        ParticipationRequest participationRequest = requestRepository
-                .findById(requestId)
-                .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %d не найден", requestId)));
+        ParticipationRequest participationRequest = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %d не найден", requestId)));
 
         participationRequest.setStatus(StatusRequest.CANCELED);
 
@@ -86,35 +80,22 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByUser(Long userId) {
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
-        return requestRepository
-                .findAllByRequester_Id(userId)
-                .stream()
-                .map(participationRequest -> participationRequestMapper.toParticipationRequestDto(participationRequest))
-                .collect(Collectors.toList());
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
+        return requestRepository.findAllByRequester_Id(userId).stream().map(participationRequest -> participationRequestMapper.toParticipationRequestDto(participationRequest)).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId) {
-        return requestRepository.findAllByEvent_Initiator_IdAndEvent_Id(userId, eventId)
-                .stream()
-                .map(participationRequest -> participationRequestMapper.toParticipationRequestDto(participationRequest))
-                .collect(Collectors.toList());
+        return requestRepository.findAllByEvent_Initiator_IdAndEvent_Id(userId, eventId).stream().map(participationRequest -> participationRequestMapper.toParticipationRequestDto(participationRequest)).collect(Collectors.toList());
     }
 
     @Override
     public EventRequestStatusUpdateResultDto updateParticipationRequest(Long userId, Long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
-        Event event = eventRepository
-                .findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
 
-        User user = userRepository
-                .findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найдено", userId)));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найдено", userId)));
 
 
         List<Long> ids = eventRequestStatusUpdateRequestDto.getRequestIds();
@@ -123,21 +104,14 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         List<ParticipationRequestDto> confirmedList = new ArrayList<>();
         List<ParticipationRequestDto> rejectedList = new ArrayList<>();
 
-        List<ParticipationRequest> requests = requestRepository
-                .findAllByEvent_Id(eventId)
-                .stream()
-                .collect(Collectors.toList());
+        List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId).stream().collect(Collectors.toList());
 
-        if (event.getParticipantLimit() == 0) {
+        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED)) {
             throw new ConflictException("Лимит участников уже заполнен.");
         }
         if (ids != null) {
             for (Long id : ids) {
-                ParticipationRequest participationRequest = requests
-                        .stream()
-                        .filter(participationRequest1 -> participationRequest1.getId().equals(id))
-                        .findFirst()
-                        .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %d не найден", id)));
+                ParticipationRequest participationRequest = requests.stream().filter(participationRequest1 -> participationRequest1.getId().equals(id)).findFirst().orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %d не найден", id)));
 
                 if (!participationRequest.getStatus().equals(StatusRequest.PENDING)) {
                     throw new ConflictException("Запрос невозможно подтвердить.");
