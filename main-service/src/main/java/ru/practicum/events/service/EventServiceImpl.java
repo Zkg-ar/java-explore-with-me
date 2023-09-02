@@ -232,7 +232,7 @@ public class EventServiceImpl implements EventService {
                     throw new BadRequestException("Сортировка возможна только по просмотрам или дате события.");
             }
         }
-        viewService.createHit(httpServletRequest);
+        //viewService.createHit(httpServletRequest);
         return events;
     }
 
@@ -245,7 +245,7 @@ public class EventServiceImpl implements EventService {
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException("Событие не найдено");
         }
-        viewService.createHit(httpServletRequest);
+        // viewService.createHit(httpServletRequest);
 
         return mapToEventFullDto(event);
     }

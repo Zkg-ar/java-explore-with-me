@@ -99,7 +99,6 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId) {
-        List<ParticipationRequest> all = requestRepository.findAll();
         return requestRepository.findAllByEvent_Initiator_IdAndEvent_Id(userId, eventId)
                 .stream()
                 .map(participationRequest -> participationRequestMapper.toParticipationRequestDto(participationRequest))
@@ -158,71 +157,4 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         return new EventRequestStatusUpdateResultDto(confirmedList, rejectedList);
     }
-//    @Override
-//    public EventRequestStatusUpdateResultDto updateParticipationRequest(Long userId, Long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
-//        userRepository
-//                .findById(userId)
-//                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
-//
-//        Event event = eventRepository
-//                .findById(eventId)
-//                .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
-//        ;
-//
-//        Long confirmedRequest = requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED);
-//
-//        long freePlaces = event.getParticipantLimit() - confirmedRequest;
-//
-//        if (eventRequestStatusUpdateRequestDto.getStatus().equals(StatusRequest.CONFIRMED) && freePlaces <= 0) {
-//            throw new ConflictException("The limit of requests to participate in the event has been reached");
-//        }
-//
-//        List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndEventInitiatorIdAndIdIn(eventId, userId, eventRequestStatusUpdateRequestDto.getRequestIds());
-//
-//        setStatus(requests, eventRequestStatusUpdateRequestDto.getStatus(), freePlaces);
-//
-//        List<ParticipationRequestDto> requestsDto = requests
-//                .stream()
-//                .map(participationRequestMapper::toParticipationRequestDto)
-//                .collect(Collectors.toList());
-//
-//        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
-//        List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
-//
-//        requestsDto.forEach(el -> {
-//            if (eventRequestStatusUpdateRequestDto.getStatus().equals(StatusRequest.CONFIRMED)) {
-//                confirmedRequests.add(el);
-//            } else {
-//                rejectedRequests.add(el);
-//            }
-//        });
-//
-//        return new EventRequestStatusUpdateResultDto(confirmedRequests, rejectedRequests);
-//    }
-//
-//    private void setStatus(List<ParticipationRequest> requests, StatusRequest status, Long freePlaces) {
-//        if (status.equals(StatusRequest.CONFIRMED)) {
-//            for (ParticipationRequest request : requests) {
-//                if (!request.getStatus().equals(StatusRequest.PENDING)) {
-//                    throw new ConflictException("Запрос невозможно подтвердить.");
-//                }
-//                if (freePlaces > 0) {
-//                    request.setStatus(StatusRequest.CONFIRMED);
-//                    freePlaces--;
-//                } else {
-//                    request.setStatus(StatusRequest.REJECTED);
-//                }
-//            }
-//        } else if (status.equals(StatusRequest.REJECTED)) {
-//            requests.forEach(request -> {
-//                if (!request.getStatus().equals(StatusRequest.PENDING)) {
-//                    throw new ConflictException("Запрос невозможно подтвердить.");
-//                }
-//                request.setStatus(participationRequestMapper.REJECTED);
-//            });
-//        } else {
-//            throw new ConflictException("Запрос невозможно подтвердить.");
-//        }
-//    }
-
 }
