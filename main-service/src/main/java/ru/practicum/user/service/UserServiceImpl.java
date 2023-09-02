@@ -34,10 +34,16 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
-        return userRepository.findAllByIdIn(ids, PageRequest.of(from / size, size))
-                .stream()
-                .map(user -> userMapper.toUserDto(user))
-                .collect(Collectors.toList());
+        return ids == null || ids.isEmpty() ?
+                userRepository
+                        .findAll(PageRequest.of(from / size, size))
+                        .stream()
+                        .map(user -> userMapper.toUserDto(user))
+                        .collect(Collectors.toList()) :
+                userRepository.findAllByIdIn(ids, PageRequest.of(from / size, size))
+                        .stream()
+                        .map(user -> userMapper.toUserDto(user))
+                        .collect(Collectors.toList());
     }
 
     @Override

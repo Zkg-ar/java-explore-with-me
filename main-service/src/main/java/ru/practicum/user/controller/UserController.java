@@ -31,9 +31,6 @@ public class UserController {
                                   @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
                                   @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("Получение всех пользователей по заданным параметрам:{},{},{}", ids, from, size);
-        if (ids == null) {
-            ids = Collections.emptyList();
-        }
         return userService.getUsers(ids, from, size);
 
     }
