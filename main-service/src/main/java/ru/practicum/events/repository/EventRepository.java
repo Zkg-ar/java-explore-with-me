@@ -21,7 +21,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                           List<Long> categories, LocalDateTime rangeStart,
                           LocalDateTime rangeEnd, Pageable pageable);
 
-
     @Query("SELECT event FROM Event event " +
             "WHERE " +
             "LOWER(event.annotation) LIKE LOWER(CONCAT('%', ?1, '%'))" +
