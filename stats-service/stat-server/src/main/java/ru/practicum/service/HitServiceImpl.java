@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class HitServiceImpl implements HitService {
-    private final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final HitsRepository hitsRepository;
     private final EndpointHitMapper endpointHitMapper;
     private final ViewStatsMapper viewStatsMapper;
@@ -34,8 +34,8 @@ public class HitServiceImpl implements HitService {
     @Override
     @Transactional(readOnly = true)
     public List<ViewStatsDto> getAll(String start, String end, List<String> uri, boolean unique) {
-        LocalDateTime startTime = LocalDateTime.parse(start, FORMATTER);
-        LocalDateTime endTime = LocalDateTime.parse(end, FORMATTER);
+        LocalDateTime startTime = LocalDateTime.parse(start, formatter);
+        LocalDateTime endTime = LocalDateTime.parse(end, formatter);
         if (uri == null) {
             return unique ? hitsRepository.getAllUniqueWhereCreatedBetweenStartAndEnd(startTime, endTime)
                     .stream()
