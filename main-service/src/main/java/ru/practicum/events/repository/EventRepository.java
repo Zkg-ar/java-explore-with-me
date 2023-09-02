@@ -24,12 +24,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT event FROM Event event " +
             "WHERE " +
-            "LOWER(event.annotation) LIKE  LOWER(CONCAT('%', ?1, '%'))" +
+            "LOWER(event.annotation) LIKE LOWER(CONCAT('%', ?1, '%'))" +
             "OR LOWER(event.description) LIKE LOWER(CONCAT('%', ?1, '%')) " +
             "AND event.category.id IN ?2 " +
             "AND event.paid = ?3 " +
-            "AND event.state ='PUBLISHED' ")
-    List<Event> searchEvent(String text, List<Long> categories, Boolean paid, Pageable pageable);
+            "AND event.state ='PUBLISHED' " +
+            "AND event.eventDate BETWEEN ?4 AND ?5 ")
+    List<Event> searchEvent(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
+
 
     Boolean existsEventsByCategory_Name(String name);
 }

@@ -197,17 +197,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, String rangeStart, String rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
+
         List<EventShortDto> events = eventRepository.searchEvent(text, categories, paid,
+                        rangeStart == null ? LocalDateTime.now() : LocalDateTime.parse(rangeStart, Constant.FORMATTER),
+                        rangeEnd == null ? LocalDateTime.now() : LocalDateTime.parse(rangeEnd, Constant.FORMATTER),
                         PageRequest.of(from / size, size))
                 .stream()
-                .filter(event -> rangeStart != null ?
-                        event.getEventDate().isAfter(LocalDateTime.parse(rangeStart, Constant.FORMATTER)) :
-                        event.getEventDate().isAfter(LocalDateTime.now())
-                                && rangeEnd != null ? event.getEventDate().isBefore(LocalDateTime.parse(rangeEnd,
-                                Constant.FORMATTER)) :
-                                event.getEventDate().isBefore(LocalDateTime.MAX))
                 .map(event -> eventMapper.toEventShortDto(event))
-                .map(this::setConfirmedRequests)
                 .collect(Collectors.toList());
 
         if (Boolean.TRUE.equals(onlyAvailable)) {
