@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.Constant;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-//import ru.practicum.client.EventClient;
+import ru.practicum.client.EventClient;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.model.Event;
@@ -24,8 +24,7 @@ import ru.practicum.user.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,22 +37,24 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
-    //private final EventClient client;
+    private final EventClient client;
     private final EventMapper eventMapper;
+
+    private final ViewService viewService;
 
     @Override
     public EventFullDto save(Long userId, NewEventDto newEventDto) {
-        checkNewEventDto(newEventDto);
+        NewEventDto dto = checkNewEventDto(newEventDto);
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
 
         Category category = categoryRepository
-                .findById(newEventDto.getCategory())
+                .findById(dto.getCategory())
                 .orElseThrow(() -> new NotFoundException(String.format("Категория с id = %d не найден", newEventDto.getCategory())));
-        Location location = locationRepository.save(locationMapper.toLocation(newEventDto.getLocation()));
+        Location location = locationRepository.save(locationMapper.toLocation(dto.getLocation()));
 
-        Event event = eventMapper.toEvent(newEventDto, location, category, user);
+        Event event = eventMapper.toEvent(dto, location, category, user);
         event.setState(State.PENDING);
         if (event.getCreatedOn() == null) {
             event.setCreatedOn(LocalDateTime.now());
@@ -67,10 +68,9 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventFullDto> getUsersEvents(Long userId, Integer from, Integer size) {
-        return eventRepository.findAllByInitiator_Id(userId, PageRequest.of(from / size, size))
+        return toEventsFullDto(eventRepository.findAllByInitiator_Id(userId, PageRequest.of(from / size, size))
                 .stream()
-                .map(event -> eventMapper.toEventFullDto(event))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -82,7 +82,7 @@ public class EventServiceImpl implements EventService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new BadRequestException("Запрос составлен некорректно");
         }
-        return eventMapper.toEventFullDto(event);
+        return toEventFullDto(event);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class EventServiceImpl implements EventService {
         }
 
 
-        return eventMapper.toEventFullDto(eventRepository.save(event));
+        return toEventFullDto(eventRepository.save(event));
 
     }
 
@@ -225,7 +225,7 @@ public class EventServiceImpl implements EventService {
                     throw new BadRequestException("Сортировка возможна только по просмотрам или дате события.");
             }
         }
-        //createHit(httpServletRequest);
+        viewService.createHit(httpServletRequest);
         return eventShortDtos;
     }
 
@@ -236,8 +236,9 @@ public class EventServiceImpl implements EventService {
                 .findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
-        //createHit(httpServletRequest);
-        return eventMapper.toEventFullDto(event);
+        viewService.createHit(httpServletRequest);
+
+        return toEventFullDto(event);
     }
 
     private void checkEventDate(LocalDateTime eventDate) {
@@ -260,8 +261,42 @@ public class EventServiceImpl implements EventService {
         return newEventDto;
     }
 
-//    private void createHit(HttpServletRequest request) {
-//        client.createHit(request);
-//    }
+    private List<EventShortDto> toEventsShortDto(List<Event> events) {
+        Map<Long, Long> views = viewService.getViews(events);
+        Map<Long, Long> confirmedRequests = viewService.getConfirmedRequests(events);
+
+        List<EventShortDto> dtos = events.stream()
+                .map((event) -> eventMapper.toEventShortDto(event))
+                .collect(Collectors.toList());
+
+        dtos.forEach(el -> {
+            el.setViews(views.getOrDefault(el.getId(), 0L));
+            el.setConfirmedRequests(confirmedRequests.getOrDefault(el.getId(), 0L));
+        });
+
+        return dtos;
+    }
+
+    private List<EventFullDto> toEventsFullDto(List<Event> events) {
+        Map<Long, Long> views = viewService.getViews(events);
+        Map<Long, Long> confirmedRequests = viewService.getConfirmedRequests(events);
+
+        List<EventFullDto> dtos = events.stream()
+                .map((event) -> eventMapper.toEventFullDto(event))
+                .collect(Collectors.toList());
+
+        dtos.forEach(el -> {
+            el.setViews(views.getOrDefault(el.getId(), 0L));
+            el.setConfirmedRequests(confirmedRequests.getOrDefault(el.getId(), 0L));
+        });
+
+
+        return dtos;
+    }
+
+    private EventFullDto toEventFullDto(Event event) {
+        return toEventsFullDto(List.of(event)).get(0);
+    }
+
 
 }

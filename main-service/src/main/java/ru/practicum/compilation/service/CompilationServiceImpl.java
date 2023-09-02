@@ -14,6 +14,7 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.exception.NotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto createCompilation(NewCompilationDto newCompilationDto) {
-        List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
+        List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents() == null ? Collections.emptyList() : newCompilationDto.getEvents());
         if (newCompilationDto.getPinned() == null) {
             newCompilationDto.setPinned(false);
         }
@@ -59,6 +60,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional(readOnly = true)
     public List<CompilationDto> getAll(Boolean pinned, Integer from, Integer size) {
+        if (pinned == null) {
+            return compilationRepository
+                    .findAll(PageRequest.of(from / size, size))
+                    .stream()
+                    .map(compilation -> compilationMapper.toCompilationDto(compilation))
+                    .collect(Collectors.toList());
+        }
         return compilationRepository
                 .findAllByPinned(pinned, PageRequest.of(from / size, size))
                 .stream()

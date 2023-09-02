@@ -9,8 +9,7 @@ import ru.practicum.events.model.State;
 import ru.practicum.events.service.EventService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -26,8 +25,8 @@ public class AdminEventController {
                                                @RequestParam(required = false) List<Long> categories,
                                                @RequestParam(required = false) String rangeStart,
                                                @RequestParam(required = false) String rangeEnd,
-                                               @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
-                                               @Positive @RequestParam(value = "size", defaultValue = "10") Integer size) {
+                                               @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                               @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         return eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 

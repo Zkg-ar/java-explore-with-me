@@ -1,7 +1,6 @@
 package ru.practicum.events.service;
 
 import ru.practicum.events.dto.*;
-import ru.practicum.events.model.Event;
 import ru.practicum.events.model.State;
 
 import javax.servlet.http.HttpServletRequest;
