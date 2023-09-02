@@ -35,7 +35,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
-        if (requestRepository.findByRequester_IdAndEvent_Id(eventId, userId) != null) {
+        if (requestRepository.findByRequester_IdAndEvent_Id(userId, eventId) != null) {
             throw new ConflictException("Нельзя добавить повторный запрос.");
         }
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(String.format("Собыитие с id = %d не найдено", eventId)));
@@ -49,7 +49,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             throw new ConflictException("Данное событие не опубликовано.");
         }
 
-        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED)) {
+        if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED)) {
             throw new ConflictException("Лимит превышен");
         }
         ParticipationRequest participationRequest = new ParticipationRequest();
@@ -62,7 +62,6 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             participationRequest.setStatus(StatusRequest.PENDING);
         } else {
             participationRequest.setStatus(StatusRequest.CONFIRMED);
-            event.setParticipantLimit(event.getParticipantLimit() + 1);
         }
 
         return participationRequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
@@ -106,7 +105,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId).stream().collect(Collectors.toList());
 
-        if (event.getParticipantLimit() > 0 && event.getParticipantLimit() <= requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED)) {
+        if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED)) {
             throw new ConflictException("Лимит участников уже заполнен.");
         }
         if (ids != null) {
