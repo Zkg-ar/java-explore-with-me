@@ -13,14 +13,17 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByInitiator_Id(Long userId, Pageable page);
 
-    @Query("SELECT event FROM Event event " +
-            "WHERE event.initiator.id IN ?1 " +
-            "AND event.state IN ?2 " +
-            "AND event.category.id IN ?3 " +
-            "AND event.eventDate BETWEEN ?4 AND ?5")
-    List<Event> getEvents(List<Long> users, List<State> states,
-                          List<Long> categories, LocalDateTime rangeStart,
-                          LocalDateTime rangeEnd, Pageable pageable);
+    @Query("SELECT e FROM Event e " +
+            "WHERE (COALESCE(:userIds, NULL) IS NULL OR e.initiator.id IN :userIds) " +
+            "AND (COALESCE(:states, NULL) IS NULL OR e.state IN :states) " +
+            "AND (COALESCE(:categoryIds, NULL) IS NULL OR e.category.id IN :categoryIds) " +
+            "AND (COALESCE(:rangeStart, NULL) IS NULL OR e.eventDate >= :rangeStart) " +
+            "AND (COALESCE(:rangeEnd, NULL) IS NULL OR e.eventDate <= :rangeEnd) ")
+    List<Event> getEvents(@Param("userIds") List<Long> userIds,
+                               @Param("states") List<State> states,
+                               @Param("categoryIds") List<Long> categoryIds,
+                               @Param("rangeStart") LocalDateTime rangeStart,
+                               @Param("rangeEnd") LocalDateTime rangeEnd,Pageable pageable);
 
 
     @Query("SELECT e FROM Event e " +
