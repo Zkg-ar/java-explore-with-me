@@ -200,6 +200,7 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> events = eventRepository.searchEvent(text, categories, paid,
                         rangeStart == null ? LocalDateTime.now() : LocalDateTime.parse(rangeStart, Constant.FORMATTER),
                         rangeEnd == null ? LocalDateTime.now() : LocalDateTime.parse(rangeEnd, Constant.FORMATTER),
+                        onlyAvailable,
                         PageRequest.of(from / size, size))
                 .stream()
                 .map(event -> eventMapper.toEventShortDto(event))
