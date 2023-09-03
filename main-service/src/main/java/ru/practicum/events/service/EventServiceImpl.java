@@ -200,6 +200,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
 
+        if (rangeEnd.isBefore(rangeStart)) {
+            throw new BadRequestException("Время окончания не должно быть раньше времени начала.");
+        }
         List<Event> events = eventRepository.searchEvent(text, categories, paid,
                         rangeStart,
                         rangeEnd,
