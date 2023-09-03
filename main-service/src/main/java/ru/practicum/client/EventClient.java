@@ -8,7 +8,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.Constant;
-import ru.practicum.client.BaseClient;
 import ru.practicum.dto.EndpointHitDto;
 
 import java.time.LocalDateTime;

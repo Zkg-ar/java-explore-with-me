@@ -207,25 +207,6 @@ public class EventServiceImpl implements EventService {
                         PageRequest.of(from / size, size))
                 .stream()
                 .collect(Collectors.toList());
-
-//        if (sort != null) {
-//            switch (sort) {
-//                case "EVENT_DATE":
-//                    events = events
-//                            .stream()
-//                            .sorted(Comparator.comparing(EventShortDto::getEventDate))
-//                            .collect(Collectors.toList());
-//                    break;
-//                case "VIEWS":
-//                    events = events
-//                            .stream()
-//                            .sorted(Comparator.comparing(EventShortDto::getViews))
-//                            .collect(Collectors.toList());
-//                    break;
-//                default:
-//                    throw new BadRequestException("Сортировка возможна только по просмотрам или дате события.");
-//            }
-//        }
         createHit(httpServletRequest);
 
         return mapToEventShortDto(events);
