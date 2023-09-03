@@ -3,7 +3,6 @@ package ru.practicum.events.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 @RequiredArgsConstructor
 public class ViewServiceImpl implements ViewService {
 
@@ -33,7 +31,7 @@ public class ViewServiceImpl implements ViewService {
     @Override
     public void createHit(HttpServletRequest request) {
         EndpointHitDto endpointHit = EndpointHitDto.builder()
-                .app("ewm-main-service}")
+                .app("ewm-main-service")
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now().format(Constant.FORMATTER))
@@ -97,6 +95,7 @@ public class ViewServiceImpl implements ViewService {
 
     private List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         ResponseEntity<Object> response = client.getStats(start, end, uris, unique);
+        System.out.println(response.getBody());
         try {
             return Arrays.asList(mapper.readValue(mapper.writeValueAsString(response.getBody()), ViewStatsDto[].class));
         } catch (JsonProcessingException e) {

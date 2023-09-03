@@ -3,6 +3,7 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.BadRequest;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.mapper.EndpointHitMapper;
@@ -36,6 +37,9 @@ public class HitServiceImpl implements HitService {
     public List<ViewStatsDto> getAll(String start, String end, List<String> uri, boolean unique) {
         LocalDateTime startTime = LocalDateTime.parse(start, formatter);
         LocalDateTime endTime = LocalDateTime.parse(end, formatter);
+        if (endTime.isBefore(startTime)) {
+            throw new BadRequest("Время окончания не может быть позже времени начала");
+        }
         if (uri == null) {
             return unique ? hitsRepository.getAllUniqueWhereCreatedBetweenStartAndEnd(startTime, endTime)
                     .stream()
