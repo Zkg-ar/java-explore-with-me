@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
-import ru.practicum.client.EventClient;
-import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.model.Event;
@@ -41,7 +39,7 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
     private final EventMapper eventMapper;
-    private final EventClient client;
+    private final ViewService viewService;
     private final RequestRepository requestRepository;
 
     @Override
@@ -202,13 +200,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
 
-        List<EventShortDto> events = eventRepository.searchEvent(text, categories, paid,
+        List<Event> events = eventRepository.searchEvent(text, categories, paid,
                         rangeStart,
                         rangeEnd,
                         onlyAvailable,
                         PageRequest.of(from / size, size))
                 .stream()
-                .map(event -> eventMapper.toEventShortDto(event))
                 .collect(Collectors.toList());
 
 //        if (sort != null) {
@@ -229,9 +226,9 @@ public class EventServiceImpl implements EventService {
 //                    throw new BadRequestException("Сортировка возможна только по просмотрам или дате события.");
 //            }
 //        }
-        //createHit(httpServletRequest);
+        createHit(httpServletRequest);
 
-        return events;
+        return mapToEventShortDto(events);
     }
 
     @Override
@@ -243,9 +240,9 @@ public class EventServiceImpl implements EventService {
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException("Событие не найдено");
         }
-        //createHit(httpServletRequest);
+        createHit(httpServletRequest);
 
-        return eventMapper.toEventFullDto(event);
+        return mapToEventsFullDto(List.of(event)).get(0);
     }
 
     private void checkEventDate(LocalDateTime eventDate) {
@@ -268,27 +265,8 @@ public class EventServiceImpl implements EventService {
         return newEventDto;
     }
 
-    private List<EventFullDto> mapToEventFullDto(Collection<Event> events) {
-        List<Long> eventIds = events.stream()
-                .map(Event::getId)
-                .collect(Collectors.toList());
 
-        List<EventFullDto> dtos = events.stream()
-                .map(eventMapper::toEventFullDto)
-                .collect(Collectors.toList());
-
-        Map<Long, Long> eventsViews = getViews(eventIds);
-        Map<Long, Long> confirmedRequests = getConfirmedRequests(eventIds);
-
-        dtos.forEach(el -> {
-            el.setViews(eventsViews.getOrDefault(el.getId(), 0L));
-            el.setConfirmedRequests(confirmedRequests.getOrDefault(el.getId(), 0L));
-        });
-
-        return dtos;
-    }
-
-    private List<EventShortDto> mapToEventShortDto(Collection<Event> events) {
+    private List<EventShortDto> mapToEventShortDto(List<Event> events) {
         List<Long> eventIds = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
@@ -297,7 +275,7 @@ public class EventServiceImpl implements EventService {
                 .map(eventMapper::toEventShortDto)
                 .collect(Collectors.toList());
 
-        Map<Long, Long> eventsViews = getViews(eventIds);
+        Map<Long, Long> eventsViews = viewService.getViews(events);
         Map<Long, Long> confirmedRequests = getConfirmedRequests(eventIds);
 
         dtos.forEach(el -> {
@@ -320,59 +298,19 @@ public class EventServiceImpl implements EventService {
     }
 
     private void createHit(HttpServletRequest request) {
-        client.createHit(request);
+        viewService.createHit(request);
     }
 
-    private Map<Long, Long> getViews(List<Long> eventsId) {
-        List<String> uris = eventsId
-                .stream()
-                .map(id -> "/events/" + id)
+
+    private List<EventFullDto> mapToEventsFullDto(List<Event> events) {
+        Map<Long, Long> views = viewService.getViews(events);
+        Map<Long, Long> confirmedRequests = viewService.getConfirmedRequests(events);
+        return events.stream()
+                .map((event) -> eventMapper.toEventFullDto(
+                        event,
+                        confirmedRequests.getOrDefault(event.getId(), 0L),
+                        views.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
-
-        Optional<LocalDateTime> start = eventRepository.getMinStart(eventsId);
-
-        Map<Long, Long> views = new HashMap<>();
-
-        if (start.isPresent()) {
-            List<ViewStatsDto> response = (List<ViewStatsDto>) client
-                    .getStats(start.get(), LocalDateTime.now(), uris, true);
-
-            response.forEach(dto -> {
-                String uri = dto.getUri();
-                String[] split = uri.split("/");
-                String id = split[2];
-                Long eventId = Long.parseLong(id);
-                views.put(eventId, dto.getHits());
-            });
-        } else {
-            eventsId.forEach(el -> views.put(el, 0L));
-        }
-
-        return views;
     }
-
-
-//
-//    private List<EventFullDto> mapToEventsFullDto(List<Event> events) {
-//        Map<Long, Long> views = viewService.getViews(events);
-//        Map<Long, Long> confirmedRequests = viewService.getConfirmedRequests(events);
-//
-//        List<EventFullDto> dtos = events.stream()
-//                .map((event) -> eventMapper.toEventFullDto(event))
-//                .collect(Collectors.toList());
-//
-//        dtos.forEach(event -> {
-//            event.setViews(views.getOrDefault(event.getId(), 0L));
-//            event.setConfirmedRequests(confirmedRequests.getOrDefault(event.getId(), 0L));
-//        });
-//
-//
-//        return dtos;
-//    }
-//
-//    private EventFullDto mapToEventFullDto(Event event) {
-//        return mapToEventsFullDto(Arrays.asList(event)).get(0);
-//    }
-
 
 }

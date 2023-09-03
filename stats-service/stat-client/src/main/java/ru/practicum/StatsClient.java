@@ -7,25 +7,61 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import ru.practicum.dto.EndpointHitDto;
 
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-
 @Service
 public class StatsClient extends BaseClient {
-    private static final String API_PREFIX = "/stats";
 
     @Autowired
-    public StatsClient(@Value("${stat-server}") String serverUrl, RestTemplateBuilder builder) {
-        super(builder.uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX)).requestFactory(HttpComponentsClientHttpRequestFactory::new).build());
+    public StatsClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
+        super(
+                builder
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
+                        .build()
+        );
     }
 
-    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, Boolean unique) {
-        Map<String, Object> parameters;
+    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
 
-        parameters = Map.of("start", start, "end", end, "uris", uris, "unique", unique);
-        return get("?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-
+        String path = getStatsPath(uris);
+        Map<String, Object> parameters = getStatsParameters(start, end, uris, unique);
+        return get(path, parameters);
     }
+
+    private String getStatsPath(List<String> uris) {
+        if (uris == null) {
+            return "/stats?start={start}&end={end}&unique={unique}";
+        } else {
+            return "/stats?start={start}&end={end}&unique={unique}&uris={uris}";
+        }
+    }
+
+    private Map<String, Object> getStatsParameters(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        if (uris == null) {
+            return Map.of(
+                    "start", URLEncoder.encode(start.toString(), Charset.defaultCharset()),
+                    "end", URLEncoder.encode(end.toString(), Charset.defaultCharset()),
+                    "unique", unique
+            );
+        } else {
+            return Map.of(
+                    "start", URLEncoder.encode(start.toString(), Charset.defaultCharset()),
+                    "end", URLEncoder.encode(end.toString(), Charset.defaultCharset()),
+                    "unique", unique,
+                    "uris", String.join(", ", uris)
+            );
+        }
+    }
+
+    public ResponseEntity<Object> createHit(EndpointHitDto hitDto) {
+        return post("/hit", hitDto);
+    }
+
 }

@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface ViewService {
-
         void createHit(HttpServletRequest request);
 
         Map<Long, Long> getViews(List<Event> events);
 
         Map<Long, Long> getConfirmedRequests(List<Event> events);
-
 }
