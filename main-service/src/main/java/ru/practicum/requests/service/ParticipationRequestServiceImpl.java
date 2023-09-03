@@ -126,7 +126,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                 }
             }
         }
-
+        event.setParticipantLimit(event.getParticipantLimit() + 1);
         eventRepository.save(event);
 
         return new EventRequestStatusUpdateResultDto(confirmedList, rejectedList);
