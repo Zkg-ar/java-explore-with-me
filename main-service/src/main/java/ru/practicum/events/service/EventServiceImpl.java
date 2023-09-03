@@ -18,7 +18,6 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.location.mapper.LocationMapper;
 import ru.practicum.location.model.Location;
 import ru.practicum.location.repository.LocationRepository;
-import ru.practicum.requests.model.StatusRequest;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
@@ -270,22 +269,6 @@ public class EventServiceImpl implements EventService {
         return newEventDto;
     }
 
-    private List<EventShortDto> toEventsShortDto(List<Event> events) {
-        Map<Long, Long> views = viewService.getViews(events);
-        Map<Long, Long> confirmedRequests = viewService.getConfirmedRequests(events);
-
-        List<EventShortDto> dtos = events.stream()
-                .map((event) -> eventMapper.toEventShortDto(event))
-                .collect(Collectors.toList());
-
-        dtos.forEach(el -> {
-            el.setViews(views.getOrDefault(el.getId(), 0L));
-            el.setConfirmedRequests(confirmedRequests.getOrDefault(el.getId(), 0L));
-        });
-
-        return dtos;
-    }
-
     private List<EventFullDto> mapToEventsFullDto(List<Event> events) {
         Map<Long, Long> views = viewService.getViews(events);
         Map<Long, Long> confirmedRequests = viewService.getConfirmedRequests(events);
@@ -294,9 +277,9 @@ public class EventServiceImpl implements EventService {
                 .map((event) -> eventMapper.toEventFullDto(event))
                 .collect(Collectors.toList());
 
-        dtos.forEach(el -> {
-            el.setViews(views.getOrDefault(el.getId(), 0L));
-            el.setConfirmedRequests(confirmedRequests.getOrDefault(el.getId(), 0L));
+        dtos.forEach(event -> {
+            event.setViews(views.getOrDefault(event.getId(), 0L));
+            event.setConfirmedRequests(confirmedRequests.getOrDefault(event.getId(), 0L));
         });
 
 
@@ -304,7 +287,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private EventFullDto mapToEventFullDto(Event event) {
-        return mapToEventsFullDto(List.of(event)).get(0);
+        return mapToEventsFullDto(Arrays.asList(event)).get(0);
     }
 
 
