@@ -110,7 +110,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         Long confirmRequests = viewService.getConfirmedRequests(List.of(event)).getOrDefault(eventId, 0L) +
                 requests.size();
-        if (event.getParticipantLimit() == 0 || confirmRequests >= event.getParticipantLimit()) {
+        if (event.getParticipantLimit() > 0 && confirmRequests >= event.getParticipantLimit()) {
             throw new ConflictException("Лимит участников уже заполнен.");
         }
 
