@@ -9,6 +9,7 @@ import ru.practicum.events.model.State;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByInitiator_Id(Long userId, Pageable page);
@@ -48,4 +49,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
 
     Boolean existsEventsByCategory_Name(String name);
+
+    @Query("SELECT MIN(e.publishedOn) FROM Event e WHERE e.id IN :eventsId")
+    Optional<LocalDateTime> getMinStart(@Param("eventsId") List<Long> eventsId);
 }

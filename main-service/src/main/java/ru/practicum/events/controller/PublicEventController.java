@@ -42,6 +42,6 @@ public class PublicEventController {
     @GetMapping("/{id}")
     public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest httpServletRequest) {
         log.info("Получение записи по id");
-        return eventService.getEventById(id, httpServletRequest);
+        return eventService.getPublicEventById(id, httpServletRequest);
     }
 }

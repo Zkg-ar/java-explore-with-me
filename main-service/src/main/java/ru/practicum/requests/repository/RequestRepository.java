@@ -17,6 +17,7 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
 
     List<ParticipationRequest> findAllByRequester_Id(Long userId);
 
+    List<ParticipationRequest>findAllByStatusAndEventIdIn(StatusRequest statusRequest,List<Long>ids);
     Long countParticipationByEventIdAndStatus(Long id, StatusRequest status);
 
     @Query("SELECT new ru.practicum.events.dto.Stats(pr.event.id, count(pr.id)) " +
