@@ -202,12 +202,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
 
-        List<Event> events = eventRepository.searchEvent(text, categories, paid,
+        List<EventShortDto> events = eventRepository.searchEvent(text, categories, paid,
                         rangeStart,
                         rangeEnd,
                         onlyAvailable,
                         PageRequest.of(from / size, size))
                 .stream()
+                .map(event -> eventMapper.toEventShortDto(event))
                 .collect(Collectors.toList());
 
 //        if (sort != null) {
@@ -228,8 +229,9 @@ public class EventServiceImpl implements EventService {
 //                    throw new BadRequestException("Сортировка возможна только по просмотрам или дате события.");
 //            }
 //        }
-        client.createHit(httpServletRequest);
-        return mapToEventShortDto(events);
+        //createHit(httpServletRequest);
+
+        return events;
     }
 
     @Override
@@ -241,9 +243,9 @@ public class EventServiceImpl implements EventService {
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new NotFoundException("Событие не найдено");
         }
-        client.createHit(httpServletRequest);
+        //createHit(httpServletRequest);
 
-        return mapToEventFullDto(List.of(event)).get(0);
+        return eventMapper.toEventFullDto(event);
     }
 
     private void checkEventDate(LocalDateTime eventDate) {
