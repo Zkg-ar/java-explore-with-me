@@ -121,11 +121,10 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventFullDto> getEventsByAdmin(List<Long> users, List<State> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
 
-        return eventRepository
+        return mapToEventsFullDto(eventRepository
                 .getEvents(PageRequest.of(from / size, size), users, states, categories, rangeStart, rangeEnd)
                 .stream()
-                .map(event -> eventMapper.toEventFullDto(event))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 
     @Override
