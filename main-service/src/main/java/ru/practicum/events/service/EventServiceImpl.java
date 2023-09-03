@@ -18,7 +18,6 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.location.mapper.LocationMapper;
 import ru.practicum.location.model.Location;
 import ru.practicum.location.repository.LocationRepository;
-import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
