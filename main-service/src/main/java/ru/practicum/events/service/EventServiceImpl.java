@@ -199,11 +199,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest httpServletRequest) {
-        if (rangeEnd != null && rangeStart != null) {
-            if (rangeEnd.isBefore(rangeStart)) {
-                throw new BadRequestException("Время окончания не должно быть раньше времени начала.");
-            }
-        }
+
+        checkStartEndTime(rangeStart, rangeEnd);
         List<Event> events = eventRepository.searchEvent(text, categories, paid,
                         rangeStart,
                         rangeEnd,
@@ -296,6 +293,14 @@ public class EventServiceImpl implements EventService {
                         confirmedRequests.getOrDefault(event.getId(), 0L),
                         views.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
+    }
+
+    private void checkStartEndTime(LocalDateTime start, LocalDateTime end) {
+        if (end != null && start != null) {
+            if (end.isBefore(start)) {
+                throw new BadRequestException("Время окончания не должно быть раньше времени начала.");
+            }
+        }
     }
 
 }

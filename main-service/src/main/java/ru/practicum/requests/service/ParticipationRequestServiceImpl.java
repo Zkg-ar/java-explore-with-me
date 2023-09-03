@@ -7,6 +7,7 @@ import ru.practicum.events.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.events.model.Event;
 import ru.practicum.events.model.State;
 import ru.practicum.events.repository.EventRepository;
+import ru.practicum.events.service.ViewService;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.requests.dto.EventRequestStatusUpdateResultDto;
@@ -32,6 +33,8 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final ParticipationRequestMapper participationRequestMapper;
+
+    private final ViewService viewService;
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
@@ -105,7 +108,9 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId).stream().collect(Collectors.toList());
 
-        if (event.getParticipantLimit() == 0) {
+        Long confirmRequests = viewService.getConfirmedRequests(List.of(event)).getOrDefault(eventId, 0L) +
+                requests.size();
+        if (event.getParticipantLimit() == 0 || confirmRequests >= event.getParticipantLimit()) {
             throw new ConflictException("Лимит участников уже заполнен.");
         }
 
@@ -119,7 +124,6 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                 if (state.equals(StatusRequest.CONFIRMED)) {
                     participationRequest.setStatus(StatusRequest.CONFIRMED);
                     confirmedList.add(participationRequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest)));
-                    event.setParticipantLimit(event.getParticipantLimit() - 1);
                 } else {
                     participationRequest.setStatus(StatusRequest.REJECTED);
                     rejectedList.add(participationRequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest)));
