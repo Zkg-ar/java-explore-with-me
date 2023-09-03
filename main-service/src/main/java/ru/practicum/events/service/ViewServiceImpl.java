@@ -12,7 +12,6 @@ import ru.practicum.client.EventClient;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.events.model.Event;
-import ru.practicum.exception.ConflictException;
 import ru.practicum.requests.repository.RequestRepository;
 
 import javax.servlet.http.HttpServletRequest;
