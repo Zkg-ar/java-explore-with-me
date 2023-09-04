@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.service.EventService;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.requests.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.service.ParticipationRequestService;
@@ -65,6 +66,10 @@ public class PrivateEventController {
                                                                         @PathVariable Long eventId,
                                                                         @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         log.info("Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя");
-        return participationRequestService.updateParticipationRequest(userId, eventId, eventRequestStatusUpdateRequestDto);
+        try {
+            return participationRequestService.updateParticipationRequest(userId, eventId, eventRequestStatusUpdateRequestDto);
+        } catch (ConflictException e) {
+            throw new ConflictException(e.getMessage());
+        }
     }
 }
