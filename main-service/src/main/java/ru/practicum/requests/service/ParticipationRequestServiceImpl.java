@@ -137,7 +137,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
                     new ArrayList<>());
         }
 
-        List<ParticipationRequest> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
         List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
 
         if (eventRequestStatusUpdateRequest.getStatus() == StatusRequest.REJECTED) {
@@ -152,6 +152,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
             confirmedRequests = requests.stream()
                     .limit(event.getParticipantLimit() - requestConfirmedCount)
                     .peek(e -> e.setStatus(StatusRequest.CONFIRMED))
+                    .map(participationRequest -> participationRequestMapper.toParticipationRequestDto(participationRequest))
                     .collect(Collectors.toList());
 
             rejectedRequests = requests.stream()
