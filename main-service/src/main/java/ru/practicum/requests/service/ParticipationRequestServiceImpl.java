@@ -1,6 +1,7 @@
 package ru.practicum.requests.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.events.dto.EventRequestStatusUpdateRequestDto;
@@ -22,6 +23,7 @@ import ru.practicum.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,9 +75,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public ParticipationRequestDto updateRequestStatus(Long userId, Long requestId) {
         ParticipationRequest participationRequest = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %d не найден", requestId)));
-        if (!userId.equals(participationRequest.getRequester().getId())) {
-            throw new ConflictException("Вы не являетесь владельцем данного события");
-        }
+
         participationRequest.setStatus(StatusRequest.CANCELED);
 
         return participationRequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
@@ -94,6 +94,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         return requestRepository.findAllByEvent_Initiator_IdAndEvent_Id(userId, eventId).stream().map(participationRequest -> participationRequestMapper.toParticipationRequestDto(participationRequest)).collect(Collectors.toList());
     }
 
+
     @Override
     public EventRequestStatusUpdateResultDto updateParticipationRequest(Long userId, Long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
@@ -101,9 +102,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найдено", userId)));
 
-        if (!userId.equals(event.getInitiator().getId())) {
-            throw new ConflictException("Вы не являетесь владельцем данного события");
-        }
+
         List<Long> ids = eventRequestStatusUpdateRequestDto.getRequestIds();
         StatusRequest state = eventRequestStatusUpdateRequestDto.getStatus();
 
