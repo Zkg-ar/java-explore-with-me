@@ -18,7 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
-api-tests.yml
+*.yml
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
