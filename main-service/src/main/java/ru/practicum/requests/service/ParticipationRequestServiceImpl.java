@@ -106,11 +106,11 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         List<ParticipationRequestDto> confirmedList = new ArrayList<>();
         List<ParticipationRequestDto> rejectedList = new ArrayList<>();
 
-        List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId).stream().collect(Collectors.toList());
+        List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId);
 
         Long confirmRequests = viewService.getConfirmedRequests(List.of(event)).getOrDefault(eventId, 0L) +
                 requests.size();
-        if (event.getParticipantLimit() != 0 && confirmRequests > event.getParticipantLimit()) {
+        if (event.getParticipantLimit() != 0 && confirmRequests >= event.getParticipantLimit()) {
             throw new ConflictException("Лимит участников уже заполнен.");
         }
 

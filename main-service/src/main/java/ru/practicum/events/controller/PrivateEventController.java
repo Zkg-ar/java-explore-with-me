@@ -31,8 +31,8 @@ public class PrivateEventController {
 
     @GetMapping("/users/{userId}/events")
     public List<EventFullDto> getAllUsersEvents(@PathVariable Long userId,
-                                                 @RequestParam(value = "from", defaultValue = "0") Integer from,
-                                                 @RequestParam(value = "size", defaultValue = "10") Integer size) {
+                                                @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                                @RequestParam(value = "size", defaultValue = "10") Integer size) {
         log.info("Получение событий, добавленных текущим пользователем");
         return eventService.getUsersEvents(userId, from, size);
     }
@@ -64,6 +64,7 @@ public class PrivateEventController {
     public EventRequestStatusUpdateResultDto updateParticipationRequest(@PathVariable Long userId,
                                                                         @PathVariable Long eventId,
                                                                         @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
+        log.info("Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя");
         return participationRequestService.updateParticipationRequest(userId, eventId, eventRequestStatusUpdateRequestDto);
     }
 }
