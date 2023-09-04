@@ -3,6 +3,7 @@ package ru.practicum.events.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.service.EventService;
@@ -11,11 +12,13 @@ import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.service.ParticipationRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@Validated
 public class PrivateEventController {
 
     private final EventService eventService;
@@ -61,9 +64,9 @@ public class PrivateEventController {
 
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
-    public EventRequestStatusUpdateResultDto updateParticipationRequest(@PathVariable Long userId,
-                                                                        @PathVariable Long eventId,
-                                                                        @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
+    public EventRequestStatusUpdateResultDto updateParticipationRequest(@Positive @PathVariable Long userId,
+                                                                        @Positive @PathVariable Long eventId,
+                                                                        @Valid @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         log.info("Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя");
         return participationRequestService.updateParticipationRequest(userId, eventId, eventRequestStatusUpdateRequestDto);
     }
