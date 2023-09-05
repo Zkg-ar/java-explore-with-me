@@ -18,7 +18,6 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@Validated
 public class PrivateEventController {
 
     private final EventService eventService;
@@ -64,9 +63,9 @@ public class PrivateEventController {
 
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
-    public EventRequestStatusUpdateResultDto updateParticipationRequest(@Positive @PathVariable Long userId,
-                                                                        @Positive @PathVariable Long eventId,
-                                                                        @Valid @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
+    public EventRequestStatusUpdateResultDto updateParticipationRequest(@PathVariable Long userId,
+                                                                        @PathVariable Long eventId,
+                                                                        @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         log.info("Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя");
         return participationRequestService.updateParticipationRequest(userId, eventId, eventRequestStatusUpdateRequestDto);
     }
