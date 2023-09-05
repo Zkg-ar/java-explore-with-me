@@ -8,7 +8,6 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.model.State;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.events.service.ViewService;
-import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.requests.dto.EventRequestStatusUpdateResultDto;
