@@ -8,6 +8,7 @@ import ru.practicum.events.model.Event;
 import ru.practicum.events.model.State;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.events.service.ViewService;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.requests.dto.EventRequestStatusUpdateResultDto;
@@ -38,6 +39,9 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
+        if (eventId == null || userId == null) {
+            throw new BadRequestException("Id события и/или пользователя не должно быть равно нулю");
+        }
 
         if (requestRepository.findByRequester_IdAndEvent_Id(userId, eventId) != null) {
             throw new ConflictException("Нельзя добавить повторный запрос.");
@@ -110,12 +114,9 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         List<ParticipationRequest> requests = requestRepository.findAllByEvent_Id(eventId);
 
-        Long confirmRequests = viewService.getConfirmedRequests(List.of(event)).getOrDefault(eventId, 0L) +
-                requests.size();
-        if (event.getParticipantLimit() != 0 && confirmRequests >= event.getParticipantLimit()) {
-            throw new ConflictException("Лимит участников уже заполнен.");
+        if (event.getParticipantLimit() != 0 && event.getParticipantLimit() <= requestRepository.countAllByEventIdAndStatus(eventId, StatusRequest.CONFIRMED)) {
+            throw new ConflictException("Лимит превышен");
         }
-
 
         if (ids != null) {
             for (Long id : ids) {

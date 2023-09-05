@@ -64,7 +64,7 @@ public class PrivateEventController {
     public EventRequestStatusUpdateResultDto updateParticipationRequest(@PathVariable Long userId,
                                                                         @PathVariable Long eventId,
                                                                         @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
-        log.info("Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя");
+        log.info("Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя {}",eventRequestStatusUpdateRequestDto);
         return participationRequestService.updateParticipationRequest(userId, eventId, eventRequestStatusUpdateRequestDto);
     }
 }

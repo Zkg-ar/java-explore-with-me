@@ -19,8 +19,10 @@ public class PrivateRequestController {
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createRequest(@PathVariable Long userId,
                                                  @RequestParam Long eventId) {
-        log.info("Добавление запроса от текущего пользователя на участие в событии");
-        return participationRequestService.createRequest(userId, eventId);
+        log.info("Добавление запроса от текущего пользователя на участие в событии {} {}", userId, eventId);
+        ParticipationRequestDto participationRequestDto = participationRequestService.createRequest(userId, eventId);
+        log.error("{}",participationRequestDto);
+        return participationRequestDto;
     }
 
     @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
