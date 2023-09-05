@@ -36,6 +36,7 @@ public class AdminEventController {
 
     @PatchMapping("/admin/events/{eventId}")
     public EventFullDto updateByAdmin(@PathVariable Long eventId, @Valid @RequestBody UpdateEventAdminRequestDto updateEventAdminRequestDto) {
+        log.info("Редактирование данных события и его статуса (отклонение/публикация).");
         return eventService.updateByAdmin(eventId, updateEventAdminRequestDto);
     }
 

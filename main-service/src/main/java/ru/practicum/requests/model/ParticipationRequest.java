@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class ParticipationRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;

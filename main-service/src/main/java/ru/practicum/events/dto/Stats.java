@@ -8,6 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class Stats {
-    Long eventId;
-    Long confirmedRequests;
+    private Long eventId;
+    private Long confirmedRequests;
 }

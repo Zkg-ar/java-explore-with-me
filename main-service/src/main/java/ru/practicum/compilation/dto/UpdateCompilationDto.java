@@ -10,5 +10,5 @@ public class UpdateCompilationDto {
     private List<Long> events;
     private Boolean pinned;
     @Size(min = 1, max = 50)
-    String title;
+    private String title;
 }
