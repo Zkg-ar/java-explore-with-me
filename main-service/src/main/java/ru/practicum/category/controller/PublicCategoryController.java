@@ -22,7 +22,7 @@ public class PublicCategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/categories")
-    public List<CategoryDto> getAll(@RequestParam(value = "from", defaultValue = "0") @Min(1) Integer from,
+    public List<CategoryDto> getAll(@RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
                                     @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         return categoryService.getAll(from, size);
     }
