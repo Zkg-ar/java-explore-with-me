@@ -59,13 +59,13 @@ public class ErrorHandler {
                 e.getMessage(), LocalDateTime.now()));
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(Throwable.class)
-    public ResponseEntity<Object> handleException(Throwable e) {
-        log.error("Internal server error.");
-        return responseEntity(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Недопустимый запрос.",
-                e.getMessage(), LocalDateTime.now()));
-    }
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler(Throwable.class)
+//    public ResponseEntity<Object> handleException(Throwable e) {
+//        log.error("Internal server error.");
+//        return responseEntity(new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Недопустимый запрос.",
+//                e.getMessage(), LocalDateTime.now()));
+//    }
 
     private ResponseEntity<Object> responseEntity(ApiError apiError) {
         return new ResponseEntity<>(apiError, apiError.getStatus());
