@@ -35,7 +35,7 @@ services:
     depends_on:
       - ewm-db
     environment:
-      - STAT_SERVER_URL=http://stat-server:9090
+      - STAT_SERVER_URL=http://stats-server:9090
       - MAIN_SERVICE_PORT=8080
       - URL=jdbc:postgresql://ewm-db:5432/ewn-db
       - USERNAME=postgres
