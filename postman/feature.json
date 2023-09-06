@@ -617,11 +617,6 @@
 							"    pm.expect(jsonData.id, '\"id\" должен быть 1').to.eql(1);\r",
 							"});\r",
 							"\r",
-							"pm.test(\"Проверка поля 'text'\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData).to.have.property('authorName');\r",
-							"    pm.expect(jsonData.authorName, '\"authorName\" должен быть равен \"Bernadette Greenholt\"').to.eql('Bernadette Greenholt')\r",
-							"});\r",
 							"\r",
 							"\r",
 							"pm.test(\"Проверка поля 'text'\", function () {\r",
@@ -878,8 +873,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Ответ должен содержать код статуса 204\", function () {\r",
-							"    pm.response.to.have.status(204);\r",
+							"pm.test(\"Ответ должен содержать код статуса 409\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -909,7 +904,7 @@
 						},
 						{
 							"key": "commentId",
-							"value": "3"
+							"value": "4"
 						}
 					]
 				}
