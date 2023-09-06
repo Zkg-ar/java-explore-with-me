@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.Constant;
 import ru.practicum.category.model.Category;
+import ru.practicum.comments.dto.CommentDto;
 import ru.practicum.location.model.Location;
 import ru.practicum.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -66,4 +69,6 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private State state;
 
+    @Transient
+    private List<CommentDto> comments = new ArrayList<>();
 }
