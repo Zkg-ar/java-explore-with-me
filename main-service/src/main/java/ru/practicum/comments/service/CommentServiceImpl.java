@@ -3,6 +3,7 @@ package ru.practicum.comments.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.comments.dto.CommentDto;
 import ru.practicum.comments.dto.NewCommentDto;
 import ru.practicum.comments.mapper.CommentMapper;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CommentServiceImpl implements CommentService {
 
     private final UserRepository userRepository;
@@ -52,6 +54,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CommentDto> getAllComments(Long eventId, Integer from, Integer size) {
         if (!eventRepository.existsById(eventId)) {
             throw new NotFoundException(String.format("Событие с id = %d не найдено", eventId));
