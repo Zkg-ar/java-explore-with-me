@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.comments.mapper.CommentMapper;
+import ru.practicum.comments.model.Comment;
+import ru.practicum.comments.repository.CommentRepository;
 import ru.practicum.events.dto.*;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.model.Event;
@@ -40,7 +43,10 @@ public class EventServiceImpl implements EventService {
     private final LocationMapper locationMapper;
     private final EventMapper eventMapper;
     private final ViewService viewService;
+    private final CommentRepository commentRepository;
     private final RequestRepository requestRepository;
+
+    private final CommentMapper commentMapper;
 
     @Override
     public EventFullDto save(Long userId, NewEventDto newEventDto) {
@@ -85,7 +91,8 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("Запрос составлен некорректно");
         }
 
-        return eventMapper.toEventFullDto(event);
+
+        return eventMapper.toEventFullDto(setComments(List.of(event)).get(0));
     }
 
     @Override
@@ -121,10 +128,10 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventFullDto> getEventsByAdmin(List<Long> users, List<State> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
 
-        return mapToEventsFullDto(eventRepository
+        return mapToEventsFullDto(setComments(eventRepository
                 .getEvents(PageRequest.of(from / size, size), users, states, categories, rangeStart, rangeEnd)
                 .stream()
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList())));
     }
 
     @Override
@@ -192,7 +199,7 @@ public class EventServiceImpl implements EventService {
         }
 
 
-        return eventMapper.toEventFullDto(eventRepository.save(event));
+        return eventMapper.toEventFullDto(setComments(List.of(eventRepository.save(event))).get(0));
 
     }
 
@@ -209,7 +216,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
         createHit(httpServletRequest);
 
-        return mapToEventShortDto(events);
+        return mapToEventShortDto(setComments(events));
     }
 
     @Override
@@ -223,7 +230,7 @@ public class EventServiceImpl implements EventService {
         }
         createHit(httpServletRequest);
 
-        return mapToEventsFullDto(List.of(event)).get(0);
+        return mapToEventsFullDto(setComments(List.of(event))).get(0);
     }
 
     private void checkEventDate(LocalDateTime eventDate) {
@@ -300,6 +307,17 @@ public class EventServiceImpl implements EventService {
                 throw new BadRequestException("Время окончания не должно быть раньше времени начала.");
             }
         }
+    }
+
+    private List<Event> setComments(List<Event> events) {
+        List<Comment> getComments = commentRepository.findAll();
+        for (Event event : events) {
+            event.setComments(getComments.stream().filter(comment -> comment.getEvent().getId().equals(event.getId())
+                            && event.getState().equals(State.PUBLISHED))
+                    .map(comment -> commentMapper.toCommentDto(comment))
+                    .collect(Collectors.toList()));
+        }
+        return events;
     }
 
 }
