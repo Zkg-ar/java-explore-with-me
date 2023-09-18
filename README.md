@@ -11,8 +11,8 @@ Java 11,Maven, Spring-Boot, Hibernate, Postgresql, Lombok, Docker, Jpa, AOP
 ![image](https://github.com/Zkg-ar/java-explore-with-me/assets/63973151/f1a95b82-de6d-4bde-8ce6-feff31916e98)
 
 ## Проект реализован по микро-сервисной архитектуре:
-main server - реализация бизнес-логики
-stats - сбор и возвращение статистики по публичным эндпоинтам
+main-service - реализация бизнес-логики \n
+stats-service - сбор и возвращение статистики по публичным эндпоинтам
 ### У сервисной части приложения 3 слоя управления:
 #### Публичный:
 Запросы на получение категорий событий
