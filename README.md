@@ -7,7 +7,7 @@
 ## Использованные технологии:
 Java 11,Maven, Spring-Boot, Hibernate, Postgresql, Lombok, Docker, Jpa, AOP
 Функционал приложения:
-## Эскиз страницы Front-end приложения:
+## Эскиз страницы Front-end приложения: 
 ![image](https://github.com/Zkg-ar/java-explore-with-me/assets/63973151/f1a95b82-de6d-4bde-8ce6-feff31916e98)
 
 ## Проект реализован по микро-сервисной архитектуре:
